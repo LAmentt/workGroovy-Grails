@@ -7,14 +7,22 @@ Integer qtPorta
 String tpMotor
 String modelo
 String marca
+BigDecimal preco
 
     static constraints = {
+         cor nullable: false, blank: false, validator: { valor, obj ->
+            if (!CORES_VALIDAS.contains(valor?.toLowerCase())) {
+                return "Cor inválida. Cores permitidas: ${CORES_VALIDAS.join(', ')}"
+            }
+            return true
+        }
 
-        cor nullable: false
+
         qtPorta min: 2, max: 5
         tpMotor inList: ['Gasolina','Diesel','Eletrico','Hibrido']
         modelo nullable: false
         marca nullable: false
+        preco nullable: false, min: 5000.0 , max: 1000000000.0, scale: 2
        }
 
 
@@ -39,11 +47,7 @@ String marca
         
         ]
 
-        static constraints = {
 
-            
-
-        }
 
        static mapping = {
 

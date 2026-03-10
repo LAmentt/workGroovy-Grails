@@ -1,5 +1,6 @@
 package minha.app
 
+import grails.converters.JSON
 import grails.validation.ValidationException
 import static org.springframework.http.HttpStatus.*
 
@@ -10,56 +11,122 @@ class CarroController {
     static responseFormats = ['json', 'xml']
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
+    static List<String> CORES_VALIDAS = [
+        "branco", "preto", "prata", "cinza", "vermelho",
+        "azul", "amarelo", "verde", "laranja", "marrom",
+        "bege", "roxo", "rosa", "dourado", "vinho"
+    ]
+
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        respond carroService.list(params)
+        render carroService.list(params) as JSON
     }
 
     def show(Long id) {
-        respond carroService.get(id)
+        Carro carro = carroService.get(id)
+        
+        if (!carro) {
+            response.status = 404
+            render([erro: "Carro não encontrado"] as JSON)
+            return
+        }
+        
+        render carro as JSON
     }
 
     def save() {
         Carro carro = new Carro(request.JSON as Map)
         
+        if (!carro.validate()) {
+            response.status = 422
+            render formatarErros(carro) as JSON  
+            return
+        }
+        
         try {
             carroService.save(carro)
-            respond carro, [status: CREATED]
+            render carro as JSON
         } catch (ValidationException e) {
-            respond carro.errors, [status: UNPROCESSABLE_ENTITY]
+            response.status = 422
+            render formatarErros(carro) as JSON 
         }
     }
 
-     def update(Long id) {
+    def update(Long id) {
         if (!id) {
-            render status: BAD_REQUEST, text: "ID é obrigatório"
+            response.status = 400
+            render([erro: "ID é obrigatório"] as JSON)
+            return
+        }
+
+        Carro carro = carroService.get(id)
+        
+        if (!carro) {
+            response.status = 404
+            render([erro: "Carro não encontrado"] as JSON)
             return
         }
 
         Map dados = request.JSON as Map
+        carro.properties = dados
+        
+        if (!carro.validate()) {
+            response.status = 422
+            render formatarErros(carro) as JSON  
+            return
+        }
 
         try {
-            Carro carro = carroService.update(id, dados)
-            
-            if (!carro) {
-                render status: NOT_FOUND, text: "Carro não encontrado"
-                return
-            }
-            
-            respond carro, [status: OK]
-            
+            carroService.save(carro)
+            render carro as JSON
         } catch (ValidationException e) {
-            respond e.errors, [status: UNPROCESSABLE_ENTITY]
+            response.status = 422
+            render formatarErros(carro) as JSON  
         }
     }
 
     def delete(Long id) {
-        if (id == null) {
-            render status: NOT_FOUND
+        if (!id) {
+            response.status = 404
+            render([erro: "ID é obrigatório"] as JSON)
             return
         }
 
         carroService.delete(id)
         render status: NO_CONTENT
+    }
+
+    private Map formatarErros(Carro carro) {
+        def erros = carro.errors.allErrors.collect { error ->
+            String mensagem
+            
+            switch(error.field) {
+                case 'cor':
+                    mensagem = "Cor '${error.rejectedValue}' inválida. Cores permitidas: ${CORES_VALIDAS.join(', ')}"
+                    break
+                case 'qtPorta':
+                    mensagem = "Quantidade de portas deve ser entre 2 e 5"
+                    break
+                case 'tpMotor':
+                    mensagem = "Tipo do motor é obrigatório"
+                    break
+                case 'modelo':
+                    mensagem = "Modelo é obrigatório"
+                    break
+                case 'marca':
+                    mensagem = "Marca é obrigatória"
+                    break
+                default:
+                    mensagem = "Campo ${error.field} inválido"
+            }
+            
+            return [
+                campo: error.field,
+                valorRejeitado: error.rejectedValue,
+                mensagem: mensagem
+            ]
+        }
+        
+        return [erros: erros]
     }
 }
