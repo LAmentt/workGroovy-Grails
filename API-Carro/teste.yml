@@ -1,0 +1,25 @@
+info:
+  name: teste
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:8080/carro
+  body:
+    type: json
+    data: |-
+      {
+        "cor": "amarelo",
+        "qtPorta": 4,
+        "tpMotor": "Gasolina",
+        "modelo": "2017",
+        "marca": "Hyundai"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
