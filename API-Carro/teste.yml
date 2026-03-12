@@ -4,18 +4,20 @@ info:
   seq: 2
 
 http:
-  method: POST
-  url: http://localhost:8080/carro
+  method: PUT
+  url: http://localhost:8080/carro/1
   body:
     type: json
     data: |-
       {
-        "cor": "amarelo",
+      "tpMotor": "Gasolina",
         "qtPorta": 4,
-        "tpMotor": "Gasolina",
-        "modelo": "2017",
-        "marca": "Hyundai"
-      }
+        "modelo": "2020",
+        "cor": "vermelho",
+        "marca": "chevrolet",
+        "preco": "800000"
+
+      }  
   auth: inherit
 
 settings:
