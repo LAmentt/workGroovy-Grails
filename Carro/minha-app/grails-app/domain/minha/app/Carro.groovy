@@ -43,8 +43,9 @@ BigDecimal preco
         "roxo",
         "rosa",
         "dourado",
-        "vinho"
-        
+        "vinho",
+        "musgo"
+     
         ]
 
 
