@@ -102,20 +102,31 @@ class CarroController {
             
             switch(error.field) {
                 case 'cor':
-                    mensagem = "Cor '${error.rejectedValue}' inválida. Cores permitidas: ${CORES_VALIDAS.join(', ')}"
+                if (error.code.contains('nullable') || error.code.contains('blank')) {
+                    mensagem = 'Uma cor é obrigatória'
+                }
+                else {
+                    mensagem = "Tipo de cor invalido. Marcas permitidas: (Erro: ${error.code})"
+                }
                     break
                 case 'qtPorta':
-                    mensagem = "Quantidade de portas deve ser entre 2 e 5"
+                mensagem = "Quantidade de portas deve ser entre 2 e 5"
                     break
                 case 'tpMotor':
-                    mensagem = "Tipo do motor é obrigatório"
+                mensagem = "Tipo do motor é obrigatório"
                     break
                 case 'modelo':
-                    mensagem = "Modelo é obrigatório"
+                mensagem = "Modelo é obrigatório"
                     break
                 case 'marca':
+                if (error.code.contains('nullable') || error.code.contains('blank')) {
                     mensagem = "Marca é obrigatória"
-                    break
+            } 
+                else {
+                    mensagem = "Tipo de carro invalido. Marcas permitidas: (Erro: ${error.code})"
+            }
+                break
+
                 default:
                     mensagem = "Campo ${error.field} inválido"
             }
