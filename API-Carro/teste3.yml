@@ -1,10 +1,10 @@
 info:
-  name: index
+  name: teste3
   type: http
-  seq: 1
+  seq: 4
 
 http:
-  method: GET
+  method: POST
   url: http://localhost:8080/carro
   auth: inherit
 
